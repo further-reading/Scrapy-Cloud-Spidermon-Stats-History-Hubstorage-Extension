@@ -22,9 +22,8 @@ class DashCollectionsStatsHistoryCollector(HubStorageStatsCollector):
     def _get_stat_history(self):
         try:
             data = self.store.list()
+            data = [d.get('value') for d in data]
         except scrapinghub.client.exceptions.NotFound:
-            return []
-        if not data:
             data = []
         return data
 
