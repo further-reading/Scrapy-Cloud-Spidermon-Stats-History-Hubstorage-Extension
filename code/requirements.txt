@@ -1,0 +1,2 @@
+scrapinghub>=2.3.1
+scrapinghub-entrypoint-scrapy>=0.12.1
