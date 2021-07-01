@@ -1,4 +1,4 @@
-# Scrapy-Cloud-Spidermon-Stats-History-Hubstorage-Extension
+# Scrapy Cloud Spidermon Stats History Hubstorage Extension
 
 This is a spidermon extension to create a version of [stats history collector](https://spidermon.readthedocs.io/en/latest/howto/stats-collection.html) that works better with scrapy dash.
 
