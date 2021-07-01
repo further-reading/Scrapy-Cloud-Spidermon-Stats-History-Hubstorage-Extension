@@ -3,6 +3,7 @@ from collections import deque
 import scrapinghub
 from sh_scrapy.stats import HubStorageStatsCollector
 import logging
+
 logger = logging.getLogger(__name__)
 
 
@@ -11,6 +12,7 @@ class DashCollectionsStatsHistoryCollector(HubStorageStatsCollector):
         sh_client = scrapinghub.ScrapinghubClient()
         proj_id = os.environ.get('SCRAPY_PROJECT_ID')
         if proj_id is None:
+            # not running on dash
             return
 
         project = sh_client.get_project(proj_id)
@@ -20,19 +22,17 @@ class DashCollectionsStatsHistoryCollector(HubStorageStatsCollector):
         return store
 
     def _get_stat_history(self):
-        try:
-            data = self.store.list()
-            data = [d.get('value') for d in data]
-        except scrapinghub.client.exceptions.NotFound:
-            data = []
+        data = self.store.iter()
+        data = [d.get('value') for d in data]
         return data
 
     def open_spider(self, spider):
         super().open_spider(spider)
         self.store = self._open_collection(spider)
+        # note that the _open_collection method does not error if collection does not exist yet
         if self.store is None:
-            spider.stats_history = []
             return
+
         max_stored_stats = spider.crawler.settings.getint(
             "SPIDERMON_MAX_STORED_STATS", default=100
         )
@@ -41,6 +41,7 @@ class DashCollectionsStatsHistoryCollector(HubStorageStatsCollector):
             data = self._get_stat_history()
             stats_history = deque(data, maxlen=max_stored_stats)
         except scrapinghub.client.exceptions.NotFound:
+            # this happens if the stats store has not been created yet
             stats_history = deque([], maxlen=max_stored_stats)
 
         spider.stats_history = stats_history
