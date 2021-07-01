@@ -51,4 +51,9 @@ class DashCollectionsStatsHistoryCollector(HubStorageStatsCollector):
             stats_history = spider.stats_history
             stats_history.appendleft(self._stats)
             for index, data in enumerate(stats_history):
+                if index == 0:
+                    job_id = os.environ.get('SCRAPY_JOB', '')
+                    if job_id:
+                        data['job_url'] = f'https://app.zyte.com/p/{job_id}'
+                # this will create up to SPIDERMON_MAX_STORED_STATS objects with keys 0 -> SPIDERMON_MAX_STORED_STATS - 1
                 self.store.set({'_key': str(index), 'value': data})
